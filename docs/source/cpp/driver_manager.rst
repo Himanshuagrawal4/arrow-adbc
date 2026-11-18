@@ -98,6 +98,20 @@ driver-specific connection parameters: ``driver`` and (optionally)
 to a library to load. ``entrypoint``, if provided, should be the name of the
 symbol that serves as the ADBC entrypoint (see :c:type:`AdbcDriverInitFunc`).
 
+If no entrypoint is provided by the caller or a driver manifest, the driver
+manager derives a symbol name from the resolved library filename:
+
+1. Remove the directory, any suffix starting at the first period, and a
+   leading ``lib``.
+2. Split the remaining name at underscores and hyphens, capitalize the first
+   letter of each part, and join the parts.
+3. Add the ``Adbc`` prefix if it is not already present, then append ``Init``.
+
+For example, ``libadbc_driver_sqlite.so.2``,
+``libadbc_driver_sqlite.dylib``, and ``adbc_driver_sqlite.dll`` all resolve to
+``AdbcDriverSqliteInit``. If the derived symbol is not found, the driver
+manager tries ``AdbcDriverInit``.
+
 .. code-block:: c
 
    /* Ignoring error handling */
